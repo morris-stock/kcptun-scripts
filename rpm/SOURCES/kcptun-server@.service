@@ -1,0 +1,14 @@
+[Unit]
+Description=kcptun Custom Server Service for %I
+After=network.target
+
+[Service]
+Type=simple
+User=nobody
+Group=nobody
+EnvironmentFile=/etc/kcptun/%i.conf
+ExecStart=/usr/bin/kcptun-server  --target ${TARGET} --listen ${LISTEN} --key ${KEY} $OPTIONS
+
+[Install]
+WantedBy=multi-user.target
+
