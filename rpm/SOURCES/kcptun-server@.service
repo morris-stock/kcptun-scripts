@@ -6,8 +6,7 @@ After=network.target
 Type=simple
 User=nobody
 Group=nobody
-EnvironmentFile=/etc/kcptun/%i.conf
-ExecStart=/usr/bin/kcptun-server  --target ${TARGET} --listen ${LISTEN} --key ${KEY} $OPTIONS
+ExecStart=/usr/bin/kcptun-server -c /etc/kcptun/%i.json
 
 [Install]
 WantedBy=multi-user.target

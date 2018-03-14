@@ -31,15 +31,17 @@
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.1.git%{shortcommit}%{?dist}
+Release:        0.2.git%{shortcommit}%{?dist}
 Summary:        A Fast & Secure Tunnel Based On KCP with N:M Multiplexing.
 License:        MIT
 URL:            https://%{provider_prefix}
 # https://%{provider_prefix}/archive/v%{date_ver}.tar.gz
 Source0:        %{repo}-%{date_ver}.tar.gz
-Source1:        kcptun.conf
-Source2:        kcptun-client@.service
-Source3:        kcptun-server@.service
+Source1:        kcptun-client@.service
+Source2:        kcptun-server@.service
+Source3:        client.json
+Source4:        server.json
+
 
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
@@ -52,15 +54,15 @@ BuildRequires:  %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
 %prep
 %setup -q -n %{repo}-%{date_ver}
 
-export GOPATH=$(pwd):%{gopath}
+#export GOPATH=$(pwd):%{gopath}
 
-%goget %{import_path}/client
-%goget %{import_path}/server
+#%goget %{import_path}/client
+#%goget %{import_path}/server
 
 %build
 mkdir -p src/%{provider}.%{provider_tld}/%{project}
 
-export GOPATH=$(pwd):%{gopath}
+#export GOPATH=$(pwd):%{gopath}
 
 %gobuild -o bin/kcptun-client %{import_path}/client
 %gobuild -o bin/kcptun-server %{import_path}/server
@@ -71,11 +73,11 @@ install -p -m 0755 bin/kcptun-client %{buildroot}%{_bindir}
 install -p -m 0755 bin/kcptun-server %{buildroot}%{_bindir}
 
 install -d -p %{buildroot}%{_sysconfdir}/kcptun
-install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/kcptun
+install -m 0644 %{SOURCE3} %{SOURCE4} %{buildroot}%{_sysconfdir}/kcptun
 
 %if 0%{?rhel} >= 7
 install -d -p -p %{buildroot}%{_unitdir}
-install -m 0644 %{SOURCE2} %{SOURCE3} %{buildroot}%{_unitdir}/
+install -m 0644 %{SOURCE1} %{SOURCE2} %{buildroot}%{_unitdir}/
 %endif
 
 #define license tag if not already defined
@@ -87,7 +89,8 @@ install -m 0644 %{SOURCE2} %{SOURCE3} %{buildroot}%{_unitdir}/
 %{_bindir}/kcptun-client
 %{_bindir}/kcptun-server
 
-%config(noreplace) %{_sysconfdir}/kcptun/kcptun.conf
+%config(noreplace) %{_sysconfdir}/kcptun/client.json
+%config(noreplace) %{_sysconfdir}/kcptun/server.json
 
 %if 0%{?rhel} >= 7
 %{_unitdir}/kcptun-client@.service
